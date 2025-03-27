@@ -138,9 +138,14 @@ object SchoolModel:
         }
       def setTeacherToCourse(teacher: Teacher, course: Course): School = school match
         case SchoolImpl(t, c, ttc) => SchoolImpl(Cons(teacher, t), Cons(course, c), Cons((teacher, course), ttc))
-      def coursesOfATeacher(teacher: Teacher): Sequence[Course] = ???
-      def hasTeacher(name: String): Boolean = ???
-      def hasCourse(name: String): Boolean = ???
+      def coursesOfATeacher(teacher: Teacher): Sequence[Course] = school match
+        case SchoolImpl(t, c, ttc) =>
+          val coursesOfTeacher = ttc.filter { case (t, _) => t == teacher }
+          coursesOfTeacher.map { case (_, course) => course }
+      def hasTeacher(name: String): Boolean = school match
+        case SchoolImpl(t, _, _) => t.contains(TeacherImpl(name))
+      def hasCourse(name: String): Boolean = school match
+        case SchoolImpl(_, c, _) => c.contains(CourseImpl(name))
 @main def examples(): Unit =
   import SchoolModel.BasicSchoolModule.*
   val school = emptySchool

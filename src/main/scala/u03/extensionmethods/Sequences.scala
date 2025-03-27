@@ -34,6 +34,9 @@ object Sequences:
         case Cons(h, t) => Cons(h, t.concat(other))
         case Nil()      => other
 
+      def contains(elem: A): Boolean = l match
+        case Cons(h, t) => h == elem || t.contains(elem)
+        case _ => false
 
     def of[A](n: Int, a: A): Sequence[A] =
       if (n == 0) then Nil[A]() else Cons(a, of(n - 1, a))
