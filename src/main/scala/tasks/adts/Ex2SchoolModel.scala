@@ -1,6 +1,6 @@
 package tasks.adts
-import u03.extensionmethods.Optionals.*
 import u03.extensionmethods.Sequences.*
+import u03.extensionmethods.Sequences.Sequence.{Cons, nil}
 
 /*  Exercise 2: 
  *  Implement the below trait, and write a meaningful test.
@@ -111,18 +111,33 @@ object SchoolModel:
        */
       def hasCourse(name: String): Boolean
   object BasicSchoolModule extends SchoolModule:
-    override type School = Nothing
-    override type Teacher = Nothing
-    override type Course = Nothing
+    private case class TeacherImpl(name: String)
 
-    def teacher(name: String): Teacher = ???
-    def course(name: String): Course = ???
-    def emptySchool: School = ???
+    private case class CourseImpl(name: String)
+
+    private case class SchoolImpl(teachers: Sequence[TeacherImpl], courses: Sequence[CourseImpl], teacherToCourses: Sequence[(TeacherImpl, CourseImpl)])
+
+    override opaque type School = SchoolImpl
+    override opaque type Teacher = TeacherImpl
+    override opaque type Course = CourseImpl
+
+    def teacher(name: String): Teacher = TeacherImpl(name)
+
+    def course(name: String): Course = CourseImpl(name)
+
+    def emptySchool: School = SchoolImpl(nil(), nil(), nil())
 
     extension (school: School)
-      def courses: Sequence[String] = ???
-      def teachers: Sequence[String] = ???
-      def setTeacherToCourse(teacher: Teacher, course: Course): School = ???
+      def courses: Sequence[String] = school match
+        case SchoolImpl(_, c, _) => c.map {
+          case CourseImpl(n) => n
+        }
+      def teachers: Sequence[String] = school match
+        case SchoolImpl(t, _, _) => t.map {
+          case TeacherImpl(n) => n
+        }
+      def setTeacherToCourse(teacher: Teacher, course: Course): School = school match
+        case SchoolImpl(t, c, ttc) => SchoolImpl(Cons(teacher, t), Cons(course, c), Cons((teacher, course), ttc))
       def coursesOfATeacher(teacher: Teacher): Sequence[Course] = ???
       def hasTeacher(name: String): Boolean = ???
       def hasCourse(name: String): Boolean = ???
